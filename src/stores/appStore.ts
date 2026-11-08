@@ -1,9 +1,9 @@
 import { create } from 'zustand';
-import type { AppSnapshot, ModelProgress, SessionSnapshot } from '../types';
+import type { AppSnapshot, Language, ModelProgress, SessionSnapshot } from '../types';
 
 export const previewSnapshot: AppSnapshot = {
   settings: {
-    shortcut: 'Alt+Shift+Space', mode: 'dictate', autoInsert: true,
+    shortcut: 'Alt+Shift+Space', mode: 'dictate', autoInsert: true, language: 'zh-CN',
     asr: { provider: 'local', modelDir: '', baseUrl: '', model: '' },
     llm: { provider: 'disabled', baseUrl: 'http://127.0.0.1:8080/v1', model: '' },
   },
@@ -39,6 +39,7 @@ interface AppStore {
   removeEntry: (id: number) => void;
   addManualEntry: () => void;
   setPolishTarget: (id: number | null) => void;
+  setLanguage: (language: Language) => void;
 }
 
 const phaseOrder: Record<SessionSnapshot['phase'], number> = {
@@ -166,4 +167,7 @@ export const useAppStore = create<AppStore>((set, get) => ({
     entries: [{ id: Date.now(), text: '', rawTranscript: '', durationMs: 0, createdAt: Date.now() }, ...state.entries],
   })),
   setPolishTarget: (polishTargetId) => set({ polishTargetId }),
+  setLanguage: (language) => set((state) => state.snapshot.settings.language === language ? state : ({
+    snapshot: { ...state.snapshot, settings: { ...state.snapshot.settings, language } },
+  })),
 }));

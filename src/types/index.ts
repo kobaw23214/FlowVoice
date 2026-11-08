@@ -1,9 +1,11 @@
 export type InputMode = 'dictate' | 'polish' | 'compose';
+export type Language = 'zh-CN' | 'zh-TW' | 'en';
 export type SessionPhase = 'idle' | 'recording' | 'transcribing' | 'generating' | 'done' | 'error' | 'cancelled';
 export interface AppSettings {
   shortcut: string;
   mode: InputMode;
   autoInsert: boolean;
+  language: Language;
   asr: { provider: 'local' | 'cloud'; modelDir: string; baseUrl: string; model: string };
   llm: { provider: 'disabled' | 'local' | 'cloud'; baseUrl: string; model: string };
 }

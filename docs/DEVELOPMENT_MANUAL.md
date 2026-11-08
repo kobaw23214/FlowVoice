@@ -52,6 +52,16 @@ Handy 的依赖文件可核实 React、TypeScript、Vite、Zustand 和 Tailwind 
 
 正文与辅助说明必须保持足够对比度，不用低对比的彩色文字承担关键说明。后续新增组件沿用这套层级，参考 [Radix Themes 色彩语义](https://www.radix-ui.com/themes/docs/theme/color)、[shadcn/ui Dashboard](https://ui.shadcn.com/examples/dashboard) 与 [React Spectrum](https://react-spectrum.adobe.com/react-spectrum/index.html)，不以引入更多颜色作为区分功能的手段。
 
+### 界面语言与国际化
+
+当前支持 `zh-CN`、`zh-TW`、`en` 三种界面语言。前端文案集中在 `src/lib/i18n.ts`，`Translations` 以简体中文字典为完整键集，其他语言必须提供同名且非空的翻译；组件通过 `useI18n()` 获取文案，该 Hook 同步维护 `<html lang>`。新增文案先补齐三种语言，不在 JSX 中继续增加用户可见的硬编码中文。
+
+`AppSettings.language` 随普通偏好设置由 Rust 持久化，使用 `#[serde(default = "default_language")]` 兼容旧配置；非法语言在 `save_settings` 拒绝。桌面端切换语言后立即保存并发出设置事件，主窗口和录音浮窗分别更新自己的 Zustand 状态；`src-tauri/src/i18n.rs` 提供托盘菜单与 tooltip 文案，保存后替换托盘自身的菜单。浏览器预览只修改内存中的语言，不宣称持久化。
+
+这里的“语言”仅指界面语言，不自动改变 ASR 识别语言、LLM 提示词或输出语言。当前范围是 React 界面与系统托盘；Rust 返回的底层服务错误、模型下载进度等仍有中文，服务商返回内容按原文显示，不能声称所有错误信息已经国际化。后续扩展时宜让 Rust 提供稳定的错误码／进度类型，由前端按当前语言呈现，而不是匹配任意服务商错误文本。
+
+Windows 与 macOS 的快捷键名称也随界面语言显示。英文界面需验证 `1140×820` 与最小 `880×640` 窗口，不只验证字典构建或单个翻译键；测试还要覆盖真实语言切换、`<html lang>`、表单控件名称及无横向溢出。
+
 ### 平台输入与图标约定
 
 快捷键的录制、注册与显示按平台区分：Windows 默认 `Ctrl + Shift + Space`，macOS 默认 `Option + Shift + Space`。Windows 显示 `Ctrl / Alt / Shift / Win`，macOS 显示 `⌃ / ⌥ / ⇧ / ⌘`。录制用户实际按下的修饰键，使用全局快捷键插件可解析的 `Control`、`Super`、`Alt`、`Shift`；不把 macOS 的 Command 映射带进 Windows 的 Ctrl。只迁移原始默认值，不覆盖用户自定义组合。

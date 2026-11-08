@@ -51,3 +51,42 @@ test.describe('Windows platform preview', () => {
   await expect(page.getByRole('button', { name: '全局录音快捷键：Ctrl + Shift + J', exact: true })).toBeVisible();
   });
 });
+
+test('switches Simplified Chinese, Traditional Chinese and English across the interface', async ({ page }) => {
+  const errors: string[] = [];
+  page.on('pageerror', (error) => errors.push(error.message));
+  await page.setViewportSize({ width: 1140, height: 820 });
+  await page.goto('/');
+  await page.getByRole('button', { name: '偏好设置', exact: true }).click();
+  await page.getByRole('button', { name: '繁體中文', exact: true }).click();
+  await expect(page.locator('html')).toHaveAttribute('lang', 'zh-TW');
+  await expect(page.getByRole('button', { name: '工作台', exact: true })).toBeVisible();
+  await expect(page.getByRole('button', { name: '模型服務', exact: true })).toBeVisible();
+  await expect(page.getByText('介面語言', { exact: true })).toBeVisible();
+  await page.getByRole('button', { name: '工作台', exact: true }).click();
+  await expect(page.getByRole('button', { name: '開始錄音', exact: true })).toBeVisible();
+  await page.getByRole('button', { name: '偏好設定', exact: true }).click();
+  await page.getByRole('button', { name: 'English', exact: true }).click();
+  await expect(page.locator('html')).toHaveAttribute('lang', 'en');
+  await expect(page.getByRole('button', { name: 'Workspace', exact: true })).toBeVisible();
+  await expect(page.getByRole('button', { name: 'Models', exact: true })).toBeVisible();
+  await expect(page.getByRole('button', { name: 'Preferences', exact: true })).toBeVisible();
+  await expect(page.getByRole('button', { name: 'Save preferences', exact: true })).toBeVisible();
+  await expect(page.getByRole('button', { name: '保存偏好设置', exact: true })).toHaveCount(0);
+  await page.getByRole('button', { name: 'Models', exact: true }).click();
+  await expect(page.getByRole('button', { name: 'Save model settings', exact: true })).toBeVisible();
+  await page.getByRole('button', { name: 'Workspace', exact: true }).click();
+  await expect(page.getByRole('button', { name: 'Start recording', exact: true })).toBeVisible();
+  expect(errors).toEqual([]);
+});
+
+test('English fits the minimum window on every page', async ({ page }) => {
+  await page.setViewportSize({ width: 880, height: 640 });
+  await page.goto('/');
+  await page.getByRole('button', { name: '偏好设置', exact: true }).click();
+  await page.getByRole('button', { name: 'English', exact: true }).click();
+  for (const destination of ['Models', 'Preferences', 'Workspace']) {
+    await page.getByRole('button', { name: destination, exact: true }).click();
+    expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
+  }
+});

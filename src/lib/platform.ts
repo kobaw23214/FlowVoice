@@ -17,13 +17,13 @@ export function browserPlatform(): DesktopPlatform {
   return /mac|iphone|ipad|ipod/i.test(navigator.userAgent) ? 'macos' : 'windows';
 }
 
-export function shortcutLabel(shortcut: string, platform: DesktopPlatform): string {
+export function shortcutLabel(shortcut: string, platform: DesktopPlatform, spaceLabel = '空格'): string {
   const mac = platform === 'macos';
   const normalized = normalizeShortcut(shortcut, platform);
   const labels: Record<string, string> = {
     CommandOrControl: mac ? '⌘' : 'Ctrl', Command: '⌘', Super: mac ? '⌘' : 'Win',
     Control: mac ? '⌃' : 'Ctrl', Alt: mac ? '⌥' : 'Alt', Option: mac ? '⌥' : 'Alt',
-    Shift: mac ? '⇧' : 'Shift', Space: '空格',
+    Shift: mac ? '⇧' : 'Shift', Space: spaceLabel,
     ArrowUp: '↑', ArrowDown: '↓', ArrowLeft: '←', ArrowRight: '→',
     Comma: ',', Period: '.', Slash: '/', Semicolon: ';', Quote: "'",
     BracketLeft: '[', BracketRight: ']', Backslash: '\\', Minus: '-', Equal: '=', Backquote: '`',

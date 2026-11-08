@@ -23,8 +23,14 @@ pub struct AppSettings {
     pub shortcut: String,
     pub mode: String,
     pub auto_insert: bool,
+    #[serde(default = "default_language")]
+    pub language: String,
     pub asr: AsrSettings,
     pub llm: LlmSettings,
+}
+
+fn default_language() -> String {
+    "zh-CN".into()
 }
 
 impl Default for AppSettings {
@@ -38,6 +44,7 @@ impl Default for AppSettings {
             .into(),
             mode: "dictate".into(),
             auto_insert: true,
+            language: default_language(),
             asr: AsrSettings {
                 provider: "local".into(),
                 model_dir: String::new(),
@@ -84,6 +91,18 @@ mod shortcut_tests {
         } else {
             assert_eq!(shortcut, "Super+Shift+KeyJ");
         }
+    }
+
+    #[test]
+    fn existing_settings_default_to_simplified_chinese() {
+        let settings: AppSettings = serde_json::from_value(serde_json::json!({
+            "shortcut": "Alt+Shift+Space",
+            "mode": "dictate",
+            "autoInsert": true,
+            "asr": { "provider": "local", "modelDir": "", "baseUrl": "", "model": "" },
+            "llm": { "provider": "disabled", "baseUrl": "http://127.0.0.1:8080/v1", "model": "" }
+        })).unwrap();
+        assert_eq!(settings.language, "zh-CN");
     }
 }
 

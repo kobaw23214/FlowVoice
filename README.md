@@ -5,7 +5,7 @@
 
   **让想法，自然成文。**
 
-  Windows / macOS 桌面语音输入软件，支持离线语音识别、实时语音转文字、AI 润色与内容生成。<br />
+  Windows / macOS 多语言桌面语音输入软件，支持简体中文、繁體中文、English，离线语音识别、实时语音转文字、AI 润色与内容生成。<br />
   基于 Rust + Tauri 2，本地 SenseVoice 模型与云端 OpenAI 兼容接口可自由组合。
 
   ![平台](https://img.shields.io/badge/平台-Windows%20%C2%B7%20macOS-253858)
@@ -21,7 +21,7 @@ FlowVoice 是一款**中文语音输入、语音转文字（Speech-to-Text / STT
 
 你可以使用本地模型完成**离线语音识别（Offline Speech Recognition）**，不将录音上传云端；也可以独立接入兼容的云端转写服务、本地或云端大语言模型（LLM），完成 AI 文本润色、改写和内容生成。本地实时听写会将确认语句持续追加到同一词条，也可以增量输入到微信、文档或其他文本编辑器。
 
-**English:** FlowVoice is a local-first voice typing and AI writing desktop app for Windows and macOS. It provides real-time speech-to-text, offline Chinese speech recognition, text polishing and AI-assisted content generation. Built with Rust and Tauri, powered by SenseVoice and sherpa-onnx, with optional OpenAI-compatible ASR and LLM providers.
+**English:** FlowVoice is a multilingual, local-first voice typing and AI writing desktop app for Windows and macOS. It supports Simplified Chinese, Traditional Chinese and English interfaces, real-time speech-to-text, offline Chinese speech recognition, text polishing and AI-assisted content generation. Built with Rust and Tauri, powered by SenseVoice and sherpa-onnx, with optional OpenAI-compatible ASR and LLM providers.
 
 > 当前为 **v0.1.0 开发原型**，尚未发布安装包。Windows 已完成条件编译检查，仍需在 Windows 实机验收；macOS 已有可运行的本机调试包。项目未声明统一开源许可证，默认保留所有权利；第三方组件与模型遵循各自许可证。
 
@@ -33,6 +33,7 @@ FlowVoice 是一款**中文语音输入、语音转文字（Speech-to-Text / STT
 - **离线实时语音转文字（Real-time Transcription）**：通过 sherpa-onnx 使用 SenseVoice Small INT8；停顿后确认语句，持续追加到同一词条，并可增量写入原输入框。
 - **本地模型与云端 API 自由组合**：本地 SenseVoice，OpenAI 兼容的 `/audio/transcriptions` 转写接口，以及本地或云端 `/chat/completions` 写作接口。
 - **AI 润色与帮我写**：保留原始转写，结果先预览，再编辑、复制或回填。
+- **多语言界面（Multilingual UI / i18n）**：在「偏好设置 → 外观与语言」切换简体中文、繁體中文或 English。桌面端立即保存并同步工作台、录音浮窗和系统托盘；旧版配置默认使用简体中文。界面语言不改变语音识别或 AI 输出语言。
 - **跨平台桌面体验**：全局快捷键、录音浮窗、系统托盘，以及 Windows／macOS 对应的快捷键和权限界面。
 - **保护你的数据**：默认不保存原始录音，本地识别失败不会自动改用云端；普通配置与 API Key 分开保存。
 
@@ -84,9 +85,9 @@ Windows 上通过 PowerShell 运行。macOS 未加载 Rust 环境的终端可以
 
 ## 搜索关键词
 
-**中文**：语音转文字、语音输入软件、实时语音识别、离线语音识别、中文语音识别、本地语音模型、AI 语音输入、AI 写作、语音润色、Windows 语音输入、Mac 语音转文字、Rust 桌面应用、Tauri 语音识别。
+**中文**：语音转文字、语音输入软件、实时语音识别、离线语音识别、中文语音识别、本地语音模型、AI 语音输入、AI 写作、语音润色、多语言语音输入、繁体中文语音识别、国际化桌面应用、Windows 语音输入、Mac 语音转文字、Rust 桌面应用、Tauri 语音识别。
 
-**English**: speech to text, voice typing, dictation software, offline speech recognition, real-time transcription, Chinese ASR, local-first voice input, AI writing assistant, Windows voice typing, macOS dictation, Rust Tauri app, SenseVoice, sherpa-onnx, OpenAI-compatible API.
+**English**: speech to text, voice typing, dictation software, offline speech recognition, real-time transcription, Chinese ASR, local-first voice input, multilingual voice typing, internationalization, i18n, Traditional Chinese, AI writing assistant, Windows voice typing, macOS dictation, Rust Tauri app, SenseVoice, sherpa-onnx, OpenAI-compatible API.
 
 ## 隐私与使用边界
 

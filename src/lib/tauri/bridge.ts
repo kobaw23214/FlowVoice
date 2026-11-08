@@ -3,10 +3,11 @@ import { listen, type UnlistenFn } from '@tauri-apps/api/event';
 import { useEffect } from 'react';
 import { useAppStore } from '../../stores/appStore';
 import type { AppSnapshot, ModelProgress, SessionSnapshot } from '../../types';
+import { translations } from '../i18n';
 
 export const desktop = isTauri();
 export async function command<T = void>(name: string, args?: Record<string, unknown>): Promise<T> {
-  if (!desktop) throw new Error('请在 FlowVoice 桌面应用中使用此功能。浏览器仅用于界面预览。');
+  if (!desktop) throw new Error(translations[useAppStore.getState().snapshot.settings.language].desktopOnly);
   return invoke<T>(name, args);
 }
 export async function runAction(name: string, action: () => Promise<unknown>): Promise<boolean> {
@@ -36,7 +37,9 @@ export function useBackend() {
         if (disposed) return;
         const snapshot = await command<AppSnapshot>('get_snapshot');
         if (!disposed) store.setSnapshot(snapshot);
-      } catch (error) { if (!disposed) store.setError(`连接桌面服务失败：${String(error)}`); }
+      } catch (error) {
+        if (!disposed) store.setError(`${translations[store.snapshot.settings.language].backendConnectionFailed}: ${String(error)}`);
+      }
     };
     void connect();
     return () => { disposed = true; unsubscribers.forEach((unlisten) => unlisten()); };

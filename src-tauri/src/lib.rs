@@ -1,5 +1,6 @@
 mod audio;
 mod dictation;
+mod i18n;
 mod models;
 mod platform;
 mod providers;
@@ -223,6 +224,9 @@ fn save_settings(app: AppHandle, settings: AppSettings) -> Result<AppSnapshot, S
     if !matches!(settings.mode.as_str(), "dictate" | "polish" | "compose") {
         return Err("请选择有效的输入模式".into());
     }
+    if !matches!(settings.language.as_str(), "zh-CN" | "zh-TW" | "en") {
+        return Err("请选择有效的界面语言".into());
+    }
     let shortcut: Shortcut = settings
         .shortcut
         .parse()
@@ -257,9 +261,32 @@ fn save_settings(app: AppHandle, settings: AppSettings) -> Result<AppSnapshot, S
         }
         inner.settings = settings;
     }
+    let language = {
+        let state = app.state::<AppState>();
+        let inner = state.inner.lock().map_err(|_| "应用状态暂不可用")?;
+        inner.settings.language.clone()
+    };
+    update_tray_language(&app, &language)?;
     let value = snapshot(&app)?;
     let _ = app.emit("flowvoice://settings", &value);
     Ok(value)
+}
+
+fn update_tray_language(app: &AppHandle, language: &str) -> Result<(), String> {
+    let Some(tray) = app.tray_by_id("main-tray") else {
+        return Ok(());
+    };
+    let labels = i18n::tray_labels(language);
+    let open = MenuItem::with_id(app, "open", labels.open, true, None::<&str>)
+        .map_err(|error| error.to_string())?;
+    let cancel = MenuItem::with_id(app, "cancel", labels.cancel, true, None::<&str>)
+        .map_err(|error| error.to_string())?;
+    let quit = MenuItem::with_id(app, "quit", labels.quit, true, None::<&str>)
+        .map_err(|error| error.to_string())?;
+    let menu = Menu::with_items(app, &[&open, &cancel, &quit])
+        .map_err(|error| error.to_string())?;
+    tray.set_menu(Some(menu)).map_err(|error| error.to_string())?;
+    tray.set_tooltip(Some(labels.tooltip)).map_err(|error| error.to_string())
 }
 
 #[tauri::command]
@@ -966,12 +993,21 @@ pub fn run() {
                         Some(format!("快捷键未注册，请在偏好设置中更换：{error}"));
                 }
             }
-            let open = MenuItem::with_id(app, "open", "打开 FlowVoice", true, None::<&str>)?;
-            let cancel = MenuItem::with_id(app, "cancel", "取消当前任务", true, None::<&str>)?;
-            let quit = MenuItem::with_id(app, "quit", "退出", true, None::<&str>)?;
+            let language = app
+                .state::<AppState>()
+                .inner
+                .lock()
+                .map_err(|_| "应用状态暂不可用")?
+                .settings
+                .language
+                .clone();
+            let labels = i18n::tray_labels(&language);
+            let open = MenuItem::with_id(app, "open", labels.open, true, None::<&str>)?;
+            let cancel = MenuItem::with_id(app, "cancel", labels.cancel, true, None::<&str>)?;
+            let quit = MenuItem::with_id(app, "quit", labels.quit, true, None::<&str>)?;
             let menu = Menu::with_items(app, &[&open, &cancel, &quit])?;
-            let mut tray = TrayIconBuilder::new()
-                .tooltip("FlowVoice · 语音输入")
+            let mut tray = TrayIconBuilder::with_id("main-tray")
+                .tooltip(labels.tooltip)
                 .menu(&menu)
                 .on_menu_event(|app, event| match event.id.as_ref() {
                     "open" => show_main(app),
@@ -1079,6 +1115,7 @@ mod tests {
         assert_eq!(settings.asr.provider, "local");
         assert_eq!(settings.llm.provider, "disabled");
         assert_eq!(settings.mode, "dictate");
+        assert_eq!(settings.language, "zh-CN");
         assert!(settings.shortcut.parse::<Shortcut>().is_ok());
     }
 
